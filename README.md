@@ -1,4 +1,4 @@
-## Tentang Sekolahku
+## Tentang AntislotV8
 
 AntislotV8 adalah aplikasi scanning dan pencegahan defacmeent slot berbasis website yang di bangun dan di kembangkan dengan Framework Laravel versi 8. Fitur-fitur pada aplikasi AntislotV8 antara lain :
 
