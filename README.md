@@ -24,10 +24,11 @@ Aplikasi ini menggunakan Framework Laravel versi 8. Tentunya versi php yang digu
 -   Run `php artisan key:generate`
 -   Run `php artisan migrate --seed` for migration database
 -   Run `php artisan storage:link` for create folder storage
+-   For Server Linux Run `chmod 777 -R storage/` for fix permission storage
 
 ## Penggunaan
 
--   Login sebagai Admin email: antislot@ac.id & pw: @Antislot1337
+-   Login sebagai Admin email: antislot@anti.slot & pw: @Antislot1337
 
 Note : Aplikasi ini sangat bergantung pada wordlist yang digunakan. Apabila ingin menambah wordlist baru, sangat diperkenankan untuk membantu mengembangkan aplikasi ini.<br>
 <br>
