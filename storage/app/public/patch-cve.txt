@@ -1,0 +1,11 @@
+# Block Laravel .env requests (CVE-2018-15133)
+<Files ".env">
+Order deny,allow
+Deny from all
+</Files>
+
+#Block access file eval-stdin.php (CVE-2017-9841)
+<IfModule mod_rewrite.c>
+	RewriteEngine On
+	RewriteRule ^vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php$ - [F]
+</IfModule>

@@ -1,0 +1,2 @@
+/** patch for disable file modifications */
+define('DISALLOW_FILE_MODS',true);
