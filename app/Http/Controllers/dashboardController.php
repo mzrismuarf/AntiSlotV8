@@ -37,9 +37,9 @@ class dashboardController extends Controller
         $ResultData = ResultScan::findOrFail($id);
         $ResultData->delete();
         if ($ResultData) {
-            return to_route('dashboard')->with('success', 'Delete Success');
+            return redirect()->route('dashboard')->with('success', 'Delete Success');
         } else {
-            return to_route('dashboard')->with('failed', 'Delete Failed');
+            return redirect()->route('dashboard')->with('failed', 'Delete Failed');
         }
 
         // return redirect()->route('dashboard')->with('success', 'Data berhasil dihapus.');
