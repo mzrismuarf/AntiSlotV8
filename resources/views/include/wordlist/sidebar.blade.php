@@ -47,19 +47,19 @@
                         <span>Scan Backlink Slot</span>
                     </a>
                 </li>
-                <li class="sidebar-item has-sub active">
+                <li class="sidebar-item  has-sub">
                     <a href="{{ route('defend') }}" class='sidebar-link'>
                         <i class="bi bi-shield-plus"></i>
                         <span>Defend - Anti Slot</span>
                     </a>
-                    <ul class="submenu">
-                        <li class="submenu-item">
-                            <a href="{{ route('wordpress') }}" class="submenu-link">
+                    <ul class="submenu ">
+                        <li class="submenu-item  ">
+                            <a href="{{ route('xmlrpc') }}" class="submenu-link">
                                 <i class="bi bi-wordpress"></i>
                                 <span>Wordpress</span>
                             </a>
                         </li>
-                        <li class="submenu-item active">
+                        <li class="submenu-item  ">
                             <a href="{{ route('laravel') }}" class="submenu-link">
                                 <i class="fab fa-laravel"></i>
                                 <span>Laravel</span>
@@ -67,7 +67,7 @@
                         </li>
                     </ul>
                 </li>
-                <li class="sidebar-item">
+                <li class="sidebar-item active">
                     <a href="{{ route('wordlist') }}" class='sidebar-link'>
                         <i class="bi bi-file-earmark-word"></i>
                         <span>Wordlist</span>
