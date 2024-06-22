@@ -17,6 +17,7 @@ use App\Http\Controllers\DisableFileModifController;
 use App\Http\Controllers\laravelValidationFileController;
 use App\Http\Controllers\settingsController;
 use App\Http\Controllers\userController;
+use App\Http\Controllers\wordlistController;
 
 /*
 |--------------------------------------------------------------------------
@@ -111,4 +112,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/defend/larav/validationfile/add', [laravelValidationFileController::class, 'add']);
     Route::post('/defend/larav/validationfile/addHtaccess', [laravelValidationFileController::class, 'addHtaccess']);
     Route::post('/defend/larav/validationfile/confirmAdd', [laravelValidationFileController::class, 'confirmAdd']);
+});
+
+// ======= MENU WORDLIST ======= \\
+Route::middleware('auth')->group(function () {
+    Route::get('/wordlist', [wordlistController::class, 'index'])->name('wordlist');
+    Route::post('/wordlist', [WordlistController::class, 'update'])->name('wordlist.update');
 });
