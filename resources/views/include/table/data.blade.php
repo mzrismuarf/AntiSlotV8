@@ -1,9 +1,9 @@
     <!-- Basic Tables start -->
     <section class="section">
         @if (session('success'))
-            <div class="alert alert-success" role="alert">
-                {{ session('success') }}
-            </div>
+        <div class="alert alert-success" role="alert">
+            {{ session('success') }}
+        </div>
         @endif
         <div class="card">
             <div class="card-header">
@@ -24,25 +24,24 @@
                     </thead>
                     <tbody>
                         @foreach ($ResultData as $key => $data)
-                            <tr>
-                                <td>{{ $ResultData->firstItem() + $key }}</td>
-                                <td>{{ $data->directory_scan }}</td>
-                                <td>{{ $data->directory_safe }}</td>
-                                <td>{{ $data->directory_infected }}</td>
-                                <td>{{ $data->backlink_slot }}</td>
-                                <td>
-                                    <div class="d-flex">
-                                        <form action="{{ route('dashboard.destroy', $data->id) }}" method="POST">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-danger mx-1"
-                                                onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?')">
-                                                <i class="bi bi-trash3"></i>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
+                        <tr>
+                            <td>{{ $ResultData->firstItem() + $key }}</td>
+                            <td>{{ $data->directory_scan }}</td>
+                            <td>{{ $data->directory_safe }}</td>
+                            <td>{{ $data->directory_infected }}</td>
+                            <td>{{ $data->backlink_slot }}</td>
+                            <td>
+                                <div class="d-flex">
+                                    <form action="{{ route('dashboard.destroy', $data->id) }}" method="POST">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger mx-1" onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?')">
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
                         @endforeach
                     </tbody>
                 </table>
