@@ -38,6 +38,10 @@ Jika ada pertanyaan bisa kontak aku di email ini <b>mzrismuarf[at]gmail[dot]com<
 
 </p>
 
+## PATCH CVE-2021-3129
+
+AntiSlot ini menggunakan versi laravel versi 8, dan terdapat kerentanan pada CVE-2021-3129. Kerentanan tersebut pada "APP_DEBUG = True". Untuk mencegahnya pada 'APP_DEBUG' bisa ganti value nya bernilai 'false', dan sudah didefault pada .env.example bernilai 'APP_DEBUG = False".
+
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
