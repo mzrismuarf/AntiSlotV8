@@ -6,6 +6,7 @@ AntislotV8 adalah aplikasi scanning dan pencegahan defacmeent slot berbasis webs
 -   Dashboard (Done)
 -   Scan Backlink Slot (Done)
 -   Defend Wordpress & Laravel (Done)
+-   Wordlist (NEW)
 -   Profile (Done)
 
 ## Persyaratan
