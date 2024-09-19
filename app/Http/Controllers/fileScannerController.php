@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+// use App\Models\Wordlists;
+use Log;
+use App\Models\Wordlists;
 use App\Models\ResultScan;
-use GuzzleHttp\Promise\Create;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Response;
+use GuzzleHttp\Promise\Create;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Response;
 
 class fileScannerController extends Controller
 {
@@ -19,7 +22,6 @@ class fileScannerController extends Controller
 
     public function scanFiles(Request $request)
     {
-
         $totalDirectoryScans = ResultScan::count('directory_scan');
         $totalDirectorySafe = ResultScan::count('directory_safe');
         $totalDirectoryInfected = ResultScan::count('directory_infected');
@@ -36,9 +38,10 @@ class fileScannerController extends Controller
             // jika direktori tidak ada
             $error = 'Directory not Found!';
         } else {
-            // membaca file wordlist
-            $wordlistFile = Storage::path('public/wordlist.txt');
-            $wordlist = file($wordlistFile, FILE_IGNORE_NEW_LINES);
+            // mengambil wordlist dari database
+            $wordlist = Wordlists::pluck('slot')->map(function($slot) {
+                return trim($slot);
+            })->toArray();
 
             // melakukan scanning pada direktori
             $scannedFiles = $this->scanDirectory($directory, $wordlist);
@@ -67,7 +70,6 @@ class fileScannerController extends Controller
             }
         }
 
-
         return view('dashboard.scan.master', [
             'totalDirectoryScans' => $totalDirectoryScans,
             'totalDirectorySafe' => $totalDirectorySafe,
@@ -80,7 +82,6 @@ class fileScannerController extends Controller
             'scannedFiles' => $scannedFiles ?? null, // menggunakan null coalescing operator untuk menghindari error jika $scannedFiles tidak diinisialisasi
         ]);
     }
-
 
     private function scanDirectory($directory, $wordlist)
     {
