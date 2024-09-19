@@ -22,7 +22,7 @@
                             </div>
                             <div class="user-img d-flex align-items-center">
                                 <div class="avatar avatar-md">
-                                    <img src="{{ '../template/assets/compiled/jpg/2.jpg' }}">
+                                    <img src="{{ '../.././template/assets/compiled/jpg/2.jpg' }}">
                                 </div>
                             </div>
                         </div>

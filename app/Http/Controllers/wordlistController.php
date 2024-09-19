@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Exception;
 use App\Models\ResultScan;
+use App\Models\Wordlists;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -16,7 +17,9 @@ class wordlistController extends Controller
         $totalDirectoryInfected = ResultScan::count('directory_infected');
         $totalBacklinkSlot = ResultScan::count('backlink_slot');
 
-        $wordlist = file_get_contents(Storage::path('public/wordlist.txt'));
+
+        $wordlistSlot = Wordlists::paginate(10);
+
 
 
         return view('dashboard.wordlist.master', [
@@ -24,29 +27,38 @@ class wordlistController extends Controller
             'totalDirectorySafe' => $totalDirectorySafe,
             'totalDirectoryInfected' => $totalDirectoryInfected,
             'totalBacklinkSlot' => $totalBacklinkSlot,
-        ], compact('wordlist'));
+        ], compact('wordlistSlot'));
     }
 
-    public function update(Request $request)
+    public function edit($id)
+    {
+        $wordlist = Wordlists::findOrFail($id);
+        return view('dashboard.wordlist.edit', compact('wordlist'));
+    }
+
+    public function update(Request $request, $id)
     {
         $request->validate([
-            'contentFromTextarea1' => 'required',
-        ], [
-            'contentFromTextarea1.required' => 'Wordlist cannot be empty.',
+            'slot' => 'nullable|string|max:255',
+            'backdoor' => 'nullable|string|max:255',
+            'disable_file_modif' => 'nullable|string|max:255',
+            'disable_xmlrpc' => 'nullable|string|max:255',
+            'patch_cve' => 'nullable|string|max:255',
+            'validation_upload' => 'nullable|string|max:255',
         ]);
+    
+        $wordlist = Wordlists::findOrFail($id);
+        $wordlist->update($request->only([
+            'slot', 'backdoor', 'disable_file_modif', 'disable_xmlrpc', 'patch_cve', 'validation_upload'
+        ]));
+    
+        return redirect()->route('wordlist')->with('success', 'Data berhasil diperbarui');
+    }
 
-        try {
-            $content = $request->input('contentFromTextarea1');
-            $currentContent = file_get_contents(Storage::path('public/wordlist.txt'));
+    public function destroy($id)
+    {
+        Wordlists::findOrFail($id)->delete();
 
-            if ($content === $currentContent) {
-                return redirect()->route('wordlist')->with('info', 'No changes detected in the wordlist.');
-            }
-
-            file_put_contents(Storage::path('public/wordlist.txt'), $content);
-            return redirect()->route('wordlist')->with('success', 'Wordlist updated successfully!');
-        } catch (Exception $e) {
-            return redirect()->route('wordlist')->with('error', 'Failed to update wordlist. Please try again.');
-        }
+        return redirect()->route('wordlist')->with('success', 'Data berhasil dihapus');
     }
 }

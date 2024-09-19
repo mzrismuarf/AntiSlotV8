@@ -117,5 +117,7 @@ Route::middleware('auth')->group(function () {
 // ======= MENU WORDLIST ======= \\
 Route::middleware('auth')->group(function () {
     Route::get('/wordlist', [wordlistController::class, 'index'])->name('wordlist');
-    Route::post('/wordlist', [WordlistController::class, 'update'])->name('wordlist.update');
+    Route::put('/wordlist/{id}', [WordlistController::class, 'update'])->name('wordlist.update');    
+    Route::get('/wordlist/{id}/edit', [WordlistController::class, 'edit'])->name('wordlist.edit');
+    Route::delete('/wordlist/{id}', [WordlistController::class, 'destroy'])->name('wordlist.destroy');
 });
