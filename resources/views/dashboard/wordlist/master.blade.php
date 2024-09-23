@@ -11,14 +11,27 @@
         </section>
         <div class="container mt-5">
             <h2>Wordlist</h2>
+            <a href="{{ route('wordlist.create') }}" class="btn btn-primary mb-3">Add Wordlist</a>
             <div class="row">
                 <!-- Basic Tables start -->
                 <section class="section">
                     @if (session('success'))
-                        <div class="alert alert-success" role="alert">
-                            {{ session('success') }}
-                        </div>
-                    @endif
+                    <div class="alert alert-success">
+                        {{ session('success') }}
+                    </div>
+                @endif
+        
+                @if (session('error'))
+                    <div class="alert alert-danger">
+                        {{ session('error') }}
+                    </div>
+                @endif
+        
+                @if (session('info'))
+                    <div class="alert alert-info">
+                        {{ session('info') }}
+                    </div>
+                @endif
                     <div class="card">
                         <div class="card-header">
                             <h5 class="card-title">Data Wordlists</h5>
@@ -90,23 +103,6 @@
                 <!-- Basic Tables end -->
             </div>
         </div>
-        @if (session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
-            </div>
-        @endif
-
-        @if (session('error'))
-            <div class="alert alert-danger">
-                {{ session('error') }}
-            </div>
-        @endif
-
-        @if (session('info'))
-            <div class="alert alert-info">
-                {{ session('info') }}
-            </div>
-        @endif
     </div>
     <!-- @include('dashboard.scan.result') -->
 @endsection
