@@ -3,11 +3,17 @@
 namespace App\Http\Controllers;
 
 use Exception;
-use PhpOffice\PhpSpreadsheet\IOFactory;
 use App\Models\Wordlists;
 use App\Models\ResultScan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Color;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 class wordlistController extends Controller
 {
@@ -103,13 +109,81 @@ class wordlistController extends Controller
         $sheet = $spreadsheet->getActiveSheet();
         $rows = $sheet->toArray();
     
-        foreach ($rows as $row) {
+        foreach ($rows as $index => $row) {
+            // skip header template excel
+            if ($index === 0) {
+                continue;
+            }
+        
             Wordlists::create([
                 'slot' => $row[0] ?? null,
                 'backdoor' => $row[1] ?? null,
+                'disable_file_modif' => $row[2] ?? null,
+                'disable_xmlrpc' => $row[3] ?? null,
+                'patch_cve' => $row[4] ?? null,
+                'validation_upload' => $row[5] ?? null,
             ]);
         }
     
         return redirect()->route('wordlist')->with('success', 'Wordlist berhasil diupload dari file Excel');
     }
+    
+    public function downloadTemplate()
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+    
+        // set header
+        $headers = ['Slot', 'Backdoor', 'Disabel File Modif', 'Disable XMLRPC', 'Patch CVE', 'Validation File Upload'];
+        $sheet->fromArray($headers, null, 'A1');
+    
+        // apply table style for the header
+        $headerStyle = [
+            'font' => [
+                'bold' => true,
+                'color' => ['argb' => Color::COLOR_WHITE],
+            ],
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['argb' => '0d84eb'],
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+            ],
+        ];
+    
+        $sheet->getStyle('A1:F1')->applyFromArray($headerStyle);
+    
+        foreach (range(1, 1) as $row) {
+            $sheet->getRowDimension($row)->setRowHeight(20); // set height of the first row
+        }
+    
+        // set border for the header
+        $borderStyle = [
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['argb' => '43a4eb'],
+                ],
+            ],
+        ];
+    
+        $sheet->getStyle('A1:F1')->applyFromArray($borderStyle);
+    
+        // adjust column widths
+        foreach (range('A', 'F') as $column) {
+            $sheet->getColumnDimension($column)->setWidth(45);
+        }
+    
+        $writer = new Xlsx($spreadsheet);
+        $fileName = 'wordlist_template.xlsx';
+    
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="' . $fileName . '"');
+        header('Cache-Control: max-age=0');
+    
+        $writer->save('php://output');
+        exit;
+    }
+      
 }

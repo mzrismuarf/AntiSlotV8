@@ -12,6 +12,7 @@
         <div class="container mt-5">
             <h2>Wordlist</h2>
             <a href="{{ route('wordlist.create') }}" class="btn btn-primary mb-3">Add Wordlist</a>
+            <a href="{{ route('wordlist.downloadTemplate') }}" class="btn btn-success mb-3">Download Template</a>
             <div class="row">
                 <!-- Basic Tables start -->
                 <section class="section">

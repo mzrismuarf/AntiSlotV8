@@ -125,4 +125,5 @@ Route::middleware('auth')->group(function () {
     Route::get('/wordlist/create', [WordlistController::class, 'create'])->name('wordlist.create');
     Route::post('/wordlist/store', [WordlistController::class, 'store'])->name('wordlist.store');
     Route::post('/wordlist/upload', [WordlistController::class, 'upload'])->name('wordlist.upload');
+    Route::get('/wordlist/download-template', [WordlistController::class, 'downloadTemplate'])->name('wordlist.downloadTemplate');
 });
