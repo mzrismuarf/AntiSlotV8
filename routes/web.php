@@ -117,7 +117,12 @@ Route::middleware('auth')->group(function () {
 // ======= MENU WORDLIST ======= \\
 Route::middleware('auth')->group(function () {
     Route::get('/wordlist', [wordlistController::class, 'index'])->name('wordlist');
-    Route::put('/wordlist/{id}', [WordlistController::class, 'update'])->name('wordlist.update');    
+    Route::put('/wordlist/{id}', [WordlistController::class, 'update'])->name('wordlist.update');
     Route::get('/wordlist/{id}/edit', [WordlistController::class, 'edit'])->name('wordlist.edit');
     Route::delete('/wordlist/{id}', [WordlistController::class, 'destroy'])->name('wordlist.destroy');
+
+    // upload excel
+    Route::get('/wordlist/create', [WordlistController::class, 'create'])->name('wordlist.create');
+    Route::post('/wordlist/store', [WordlistController::class, 'store'])->name('wordlist.store');
+    Route::post('/wordlist/upload', [WordlistController::class, 'upload'])->name('wordlist.upload');
 });
