@@ -15,6 +15,79 @@ class fileScannerController extends Controller
         return view('dashboard.scan.master');
     }
 
+    private function getWordlist($type)
+    {
+        if ($type === 'best_wordlist_slot') {
+            return Wordlists::pluck('best_wordlist_slot')->filter()->toArray();
+        } else {
+            return Wordlists::pluck('slot')->filter()->toArray();
+        }
+    }
+
+
+    private function scanDirectory($directory, $wordlist, $wordlistType)
+    {
+        $files = scandir($directory);
+        $results = [];
+    
+        foreach ($files as $file) {
+            if ($file != '.' && $file != '..') {
+                $path = $directory . '/' . $file;
+                if (is_dir($path)) {
+                     // jika $path adalah direktori, lakukan rekursi
+                    $subResults = $this->scanDirectory($path, $wordlist, $wordlistType);
+                    $results = array_merge($results, $subResults);
+                } else {
+                    $content = file_get_contents($path);
+                    foreach ($wordlist as $complexWord) {
+                        // opsi untuk wordlist kompleks (best wordlist slot)
+                        if ($wordlistType === 'best_wordlist_slot') {
+                            if ($this->matchComplexPattern($content, $complexWord)) {
+                                $results[] = [
+                                    'path' => $path,
+                                    'word' => $complexWord,
+                                    'modification_time' => date('F d Y H:i:s', filemtime($path))
+                                ];
+                                break;
+                            }
+                        } else {
+                            // stripos digunakan untuk pencarian case-insensitive
+                            if (stripos($content, trim($complexWord)) !== false) {
+                            // jika kata ditemukan dalam file, tambahkan informasi file ke dalam hasil
+                                $results[] = [
+                                    'path' => $path,
+                                    'word' => $complexWord,
+                                    'modification_time' => date('F d Y H:i:s', filemtime($path))
+                                ];
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    
+        return $results;
+    }
+
+    // fungsi untuk wordlist kompleks
+    private function matchComplexPattern($content, $pattern)
+    {
+        $subPatterns = explode(' + ', $pattern);
+        foreach ($subPatterns as $subPattern) {
+            if (!$this->matchSinglePattern($content, trim($subPattern))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private function matchSinglePattern($content, $pattern)
+    {
+        $pattern = str_replace('*', '.*', preg_quote($pattern, '/'));
+        return preg_match("/.*$pattern.*/i", $content) === 1;
+    }
+
     public function scanFiles(Request $request)
     {
 
@@ -33,14 +106,9 @@ class fileScannerController extends Controller
         $safe = '';
 
         if (!is_dir($directory)) {
-            // jika direktori tidak ada
             $error = 'Directory not Found!';
         } else {
-
-            // membaca wordlist dari database dan menyesuaikan opsi nya
             $wordlist = $this->getWordlist($wordlistType);
-
-            // melakukan scanning pada direktori
             $scannedFiles = $this->scanDirectory($directory, $wordlist, $wordlistType);
 
             // untuk menampilkan hasil dalam tabel
@@ -80,81 +148,7 @@ class fileScannerController extends Controller
             'scannedFiles' => $scannedFiles ?? null, // menggunakan null coalescing operator untuk menghindari error jika $scannedFiles tidak diinisialisasi
             'wordlistType' => $wordlistType,
         ]);
-    }
-
-    private function getWordlist($type)
-    {
-        if ($type === 'best_wordlist_slot') {
-            return Wordlists::pluck('best_wordlist_slot')->filter()->toArray();
-        } else {
-            return Wordlists::pluck('slot')->filter()->toArray();
-        }
-    }
-
-
-    private function scanDirectory($directory, $wordlist, $wordlistType)
-    {
-        $files = scandir($directory);
-        $results = [];
-
-        foreach ($files as $file) {
-            if ($file != '.' && $file != '..') {
-                $path = $directory . '/' . $file;
-                if (is_dir($path)) {
-                    // Jika $path adalah direktori, lakukan rekursi
-                    $subResults = $this->scanDirectory($path, $wordlist, $wordlistType);
-                    $results = array_merge($results, $subResults);
-                } else {
-                    // jika $path adalah file, baca isinya dan cek keterdapatannya dalam wordlist
-                    $content = file_get_contents($path);
-                    foreach ($wordlist as $complexWord) {
-                        // opsi untuk wordlist kompleks (best wordlist slot)
-                        if ($wordlistType === 'best_wordlist_slot') {
-                            if ($this->matchComplexPattern($content, $complexWord)) {
-                                $results[] = [
-                                    'path' => $path,
-                                    'word' => $complexWord,
-                                    'modification_time' => date('F d Y H:i:s', filemtime($path))
-                                ];
-                                break;
-                            } else {
-                                // stripos digunakan untuk pencarian case-insensitive
-                                if (stripos($content, trim($complexWord)) !== false) {
-                                    // jika kata ditemukan dalam file, tambahkan informasi file ke dalam hasil
-                                    $results[] = [
-                                        'path' => $path,
-                                        'word' => $complexWord,
-                                        'modification_time' => date('F d Y H:i:s', filemtime($path))
-                                    ];
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        return $results;
-    }
-
-    // fungsi untuk wordlist kompleks
-    private function matchComplexPattern($content, $pattern)
-    {
-        $subPatterns = explode(' + ', $pattern);
-        foreach ($subPatterns as $subPattern) {
-            if (!$this->matchSinglePattern($content, trim($subPattern))) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private function matchSinglePattern($content, $pattern)
-    {
-        $pattern = str_replace('*', '.*', preg_quote($pattern, '/'));
-        return preg_match("/.*$pattern.*/i", $content) === 1;
-    }
+    }    
 
 
     // fungsi untuk mendapatkan isi dari file yang mau diedit
