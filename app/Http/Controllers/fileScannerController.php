@@ -26,6 +26,8 @@ class fileScannerController extends Controller
         // ambil nilai dari input form
         $directory = $request->input('directory');
 
+        $wordlistType = $request->input('wordlist_type', 'slot'); // Default to 'slot' if not specified
+
         // variabel untuk error
         $error = '';
         $safe = '';
@@ -34,11 +36,12 @@ class fileScannerController extends Controller
             // jika direktori tidak ada
             $error = 'Directory not Found!';
         } else {
-            // membaca wordlist dari database
-            $wordlist = Wordlists::pluck('slot')->filter()->toArray();
+
+            // membaca wordlist dari database dan menyesuaikan opsi nya
+            $wordlist = $this->getWordlist($wordlistType);
 
             // melakukan scanning pada direktori
-            $scannedFiles = $this->scanDirectory($directory, $wordlist);
+            $scannedFiles = $this->scanDirectory($directory, $wordlist, $wordlistType);
 
             // untuk menampilkan hasil dalam tabel
             if (empty($scannedFiles)) {
@@ -75,48 +78,84 @@ class fileScannerController extends Controller
             'error' => $error,
             'safe' => $safe,
             'scannedFiles' => $scannedFiles ?? null, // menggunakan null coalescing operator untuk menghindari error jika $scannedFiles tidak diinisialisasi
+            'wordlistType' => $wordlistType,
         ]);
     }
 
+    private function getWordlist($type)
+    {
+        if ($type === 'best_wordlist_slot') {
+            return Wordlists::pluck('best_wordlist_slot')->filter()->toArray();
+        } else {
+            return Wordlists::pluck('slot')->filter()->toArray();
+        }
+    }
 
-    private function scanDirectory($directory, $wordlist)
+
+    private function scanDirectory($directory, $wordlist, $wordlistType)
     {
         $files = scandir($directory);
         $results = [];
-    
+
         foreach ($files as $file) {
             if ($file != '.' && $file != '..') {
                 $path = $directory . '/' . $file;
                 if (is_dir($path)) {
                     // Jika $path adalah direktori, lakukan rekursi
-                    $subResults = $this->scanDirectory($path, $wordlist);
+                    $subResults = $this->scanDirectory($path, $wordlist, $wordlistType);
                     $results = array_merge($results, $subResults);
                 } else {
                     // jika $path adalah file, baca isinya dan cek keterdapatannya dalam wordlist
                     $content = file_get_contents($path);
-                    foreach ($wordlist as $keyword) {
-                        // hapus spasi berlebih dari keyword untuk memastikan pencarian lebih akurat
-                        $cleanKeyword = trim($keyword);
-                        // stripos digunakan untuk pencarian case-insensitive
-                        if (stripos($content, $cleanKeyword) !== false) {
-                            // jika kata ditemukan dalam file, tambahkan informasi file ke dalam hasil
-                            $metadataPath = $path . '.metadata';
-                            $fileModificationTime = file_exists($metadataPath) ? file_get_contents($metadataPath) : date('F d Y H:i:s', filemtime($path));
-                            $results[] = [
-                                'path' => $path,
-                                'word' => $cleanKeyword, // simpan keyword yang ditemukan
-                                'modification_time' => $fileModificationTime
-                            ];
-                            break;
+                    foreach ($wordlist as $complexWord) {
+                        // opsi untuk wordlist kompleks (best wordlist slot)
+                        if ($wordlistType === 'best_wordlist_slot') {
+                            if ($this->matchComplexPattern($content, $complexWord)) {
+                                $results[] = [
+                                    'path' => $path,
+                                    'word' => $complexWord,
+                                    'modification_time' => date('F d Y H:i:s', filemtime($path))
+                                ];
+                                break;
+                            } else {
+                                // stripos digunakan untuk pencarian case-insensitive
+                                if (stripos($content, trim($complexWord)) !== false) {
+                                    // jika kata ditemukan dalam file, tambahkan informasi file ke dalam hasil
+                                    $results[] = [
+                                        'path' => $path,
+                                        'word' => $complexWord,
+                                        'modification_time' => date('F d Y H:i:s', filemtime($path))
+                                    ];
+                                    break;
+                                }
+                            }
                         }
                     }
                 }
             }
         }
-    
+
         return $results;
     }
-    
+
+    // fungsi untuk wordlist kompleks
+    private function matchComplexPattern($content, $pattern)
+    {
+        $subPatterns = explode(' + ', $pattern);
+        foreach ($subPatterns as $subPattern) {
+            if (!$this->matchSinglePattern($content, trim($subPattern))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private function matchSinglePattern($content, $pattern)
+    {
+        $pattern = str_replace('*', '.*', preg_quote($pattern, '/'));
+        return preg_match("/.*$pattern.*/i", $content) === 1;
+    }
+
 
     // fungsi untuk mendapatkan isi dari file yang mau diedit
     public function getFileContent(Request $request)

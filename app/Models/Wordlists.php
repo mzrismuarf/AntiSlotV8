@@ -16,6 +16,7 @@ class Wordlists extends Model
         'disable_file_modif',
         'disable_xmlrpc',
         'patch_cve',
-        'validation_upload'
+        'validation_upload',
+        'best_wordlist_slot'
     ];
 }

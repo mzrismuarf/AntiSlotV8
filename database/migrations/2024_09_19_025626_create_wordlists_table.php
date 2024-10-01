@@ -21,6 +21,7 @@ class CreateWordlistsTable extends Migration
             $table->string('disable_xmlrpc')->nullable();
             $table->string('patch_cve')->nullable();
             $table->string('validation_upload')->nullable();
+            $table->string('best_wordlist_slot')->nullable();
             $table->timestamps();
         });
     }

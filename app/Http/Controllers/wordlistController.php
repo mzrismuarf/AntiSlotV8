@@ -52,6 +52,7 @@ class wordlistController extends Controller
             'disable_xmlrpc' => 'nullable|string|max:255',
             'patch_cve' => 'nullable|string|max:255',
             'validation_upload' => 'nullable|string|max:255',
+            'best_wordlist_slot' => 'nullable|string|max:255',
         ]);
 
         $wordlist = Wordlists::findOrFail($id);
@@ -61,7 +62,8 @@ class wordlistController extends Controller
             'disable_file_modif',
             'disable_xmlrpc',
             'patch_cve',
-            'validation_upload'
+            'validation_upload',
+            'best_wordlist_slot'
         ]));
 
         return redirect()->route('wordlist')->with('success', 'Data berhasil diperbarui');
@@ -89,11 +91,12 @@ class wordlistController extends Controller
             'disable_xmlrpc' => 'nullable|string|max:255',
             'patch_cve' => 'nullable|string|max:255',
             'validation_upload' => 'nullable|string|max:255',
+            'best_wordlist_slot' => 'nullable|string|max:255',
         ]);
 
         Wordlists::create($request->all());
 
-        return redirect()->route('wordlists')->with('success', 'Wordlist berhasil ditambahkan');
+        return redirect()->route('wordlist')->with('success', 'Wordlist berhasil ditambahkan');
     }
 
     public function upload(Request $request)
@@ -122,6 +125,7 @@ class wordlistController extends Controller
                 'disable_xmlrpc' => $row[3] ?? null,
                 'patch_cve' => $row[4] ?? null,
                 'validation_upload' => $row[5] ?? null,
+                'best_wordlist_slot' => $row[6] ?? null,
             ]);
         }
     
@@ -134,7 +138,7 @@ class wordlistController extends Controller
         $sheet = $spreadsheet->getActiveSheet();
     
         // set header
-        $headers = ['Slot', 'Backdoor', 'Disabel File Modif', 'Disable XMLRPC', 'Patch CVE', 'Validation File Upload'];
+        $headers = ['Slot', 'Backdoor', 'Disabel File Modif', 'Disable XMLRPC', 'Patch CVE', 'Validation File Upload', 'Best Wordlist Slot'];
         $sheet->fromArray($headers, null, 'A1');
     
         // apply table style for the header
