@@ -25,6 +25,10 @@
             
                     <!-- Field untuk mengedit data, user bisa mengosongkan field -->
                     <div class="form-group">
+                        <label for="slot">Best Wordlist Slot</label>
+                        <input type="text" class="form-control" name="best_wordlist_slot" value="{{ old('best_wordlist_slot', $wordlist->best_wordlist_slot) }}">
+                    </div>
+                    <div class="form-group">
                         <label for="slot">Slot</label>
                         <input type="text" class="form-control" name="slot" value="{{ old('slot', $wordlist->slot) }}">
                     </div>

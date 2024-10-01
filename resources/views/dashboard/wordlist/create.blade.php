@@ -36,7 +36,10 @@
                 <!-- Form untuk menambah wordlist secara manual -->
                 <form action="{{ route('wordlist.store') }}" method="POST">
                     @csrf
-            
+                    <div class="form-group">
+                        <label for="best_wordlist_slot">Best Wordlist Slot</label>
+                        <input type="text" class="form-control" name="best_wordlist_slot">
+                    </div>
                     <div class="form-group">
                         <label for="slot">Slot</label>
                         <input type="text" class="form-control" name="slot">

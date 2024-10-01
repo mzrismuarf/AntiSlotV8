@@ -43,6 +43,7 @@
                                 <thead>
                                     <tr>
                                         <th>No</th>
+                                        <th>Best Wordlist Slot</th>
                                         <th>Slot</th>
                                         <th>Backdoor</th>
                                         <th>Disabel File Modif</th>
@@ -56,6 +57,7 @@
                                     @foreach ($wordlistSlot as $key => $data)
                                         <tr>
                                             <td>{{ $wordlistSlot->firstItem() + $key }}</td>
+                                            <td>{{ $data->best_wordlist_slot }}</td>
                                             <td>{{ $data->slot }}</td>
                                             <td>{{ $data->backdoor }}</td>
                                             <td>{{ $data->disable_file_modif }}</td>
