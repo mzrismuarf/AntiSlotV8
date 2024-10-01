@@ -2,15 +2,10 @@
 
 namespace App\Http\Controllers;
 
-// use App\Models\Wordlists;
-use Log;
 use App\Models\Wordlists;
 use App\Models\ResultScan;
 use Illuminate\Http\Request;
-use GuzzleHttp\Promise\Create;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Response;
 
 class fileScannerController extends Controller
 {
@@ -22,6 +17,7 @@ class fileScannerController extends Controller
 
     public function scanFiles(Request $request)
     {
+
         $totalDirectoryScans = ResultScan::count('directory_scan');
         $totalDirectorySafe = ResultScan::count('directory_safe');
         $totalDirectoryInfected = ResultScan::count('directory_infected');
@@ -38,10 +34,8 @@ class fileScannerController extends Controller
             // jika direktori tidak ada
             $error = 'Directory not Found!';
         } else {
-            // mengambil wordlist dari database
-            $wordlist = Wordlists::pluck('slot')->map(function($slot) {
-                return trim($slot);
-            })->toArray();
+            // membaca wordlist dari database
+            $wordlist = Wordlists::pluck('slot')->filter()->toArray();
 
             // melakukan scanning pada direktori
             $scannedFiles = $this->scanDirectory($directory, $wordlist);
@@ -70,6 +64,7 @@ class fileScannerController extends Controller
             }
         }
 
+
         return view('dashboard.scan.master', [
             'totalDirectoryScans' => $totalDirectoryScans,
             'totalDirectorySafe' => $totalDirectorySafe,
@@ -83,29 +78,33 @@ class fileScannerController extends Controller
         ]);
     }
 
+
     private function scanDirectory($directory, $wordlist)
     {
         $files = scandir($directory);
         $results = [];
-
+    
         foreach ($files as $file) {
             if ($file != '.' && $file != '..') {
                 $path = $directory . '/' . $file;
                 if (is_dir($path)) {
-                    // jika $path adalah direktori, maka scan berjalan
+                    // Jika $path adalah direktori, lakukan rekursi
                     $subResults = $this->scanDirectory($path, $wordlist);
                     $results = array_merge($results, $subResults);
                 } else {
                     // jika $path adalah file, baca isinya dan cek keterdapatannya dalam wordlist
                     $content = file_get_contents($path);
                     foreach ($wordlist as $keyword) {
-                        if (stripos($content, $keyword) !== false) {
-                            // jika kata sesuai wordlist ditemukan dalam file, tambahkan informasi file ke dalam hasil
+                        // hapus spasi berlebih dari keyword untuk memastikan pencarian lebih akurat
+                        $cleanKeyword = trim($keyword);
+                        // stripos digunakan untuk pencarian case-insensitive
+                        if (stripos($content, $cleanKeyword) !== false) {
+                            // jika kata ditemukan dalam file, tambahkan informasi file ke dalam hasil
                             $metadataPath = $path . '.metadata';
                             $fileModificationTime = file_exists($metadataPath) ? file_get_contents($metadataPath) : date('F d Y H:i:s', filemtime($path));
                             $results[] = [
                                 'path' => $path,
-                                'word' => $keyword,
+                                'word' => $cleanKeyword, // simpan keyword yang ditemukan
                                 'modification_time' => $fileModificationTime
                             ];
                             break;
@@ -114,9 +113,10 @@ class fileScannerController extends Controller
                 }
             }
         }
-
+    
         return $results;
     }
+    
 
     // fungsi untuk mendapatkan isi dari file yang mau diedit
     public function getFileContent(Request $request)
