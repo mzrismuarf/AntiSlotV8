@@ -68,8 +68,7 @@
                                                 <div class="d-flex align-items-center">
                                                     <button type="submit" class="btn btn-primary mx-1">
                                                         <a href="{{ route('wordlist.edit', $data->id) }}">
-
-                                                            <i class="bi bi-pencil-square"></i>
+                                                            <i class="bi bi-pencil-square" style="color: white"></i>
                                                         </a>
                                                     </button>
                                                     <form action="{{ route('wordlist.destroy', $data->id) }}" method="POST" onsubmit="return confirm('Are you sure?');">
