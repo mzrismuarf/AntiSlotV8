@@ -19,7 +19,7 @@ Aplikasi ini menggunakan Framework Laravel versi 8. Tentunya versi php yang digu
 
 -   Install [Composer](https://getcomposer.org/download) and [Npm](https://nodejs.org/en/download)
 -   Clone the repository: `git clone https://github.com/mzrismuarf/antislotv8`
--   Install dependencies: `composer install ; npm install ; npm run dev`
+-   Install dependencies: `composer install ; npm install`
 -   Run `cp .env.example .env` for create .env file
 -   Edit `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`.
 -   Run `php artisan key:generate`
