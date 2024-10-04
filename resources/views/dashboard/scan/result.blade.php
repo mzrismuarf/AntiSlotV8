@@ -3,18 +3,46 @@
     <table class="table">
         <thead>
             <tr>
-                <th scope="col">Path</th>
-                <th scope="col">Word</th>
-                <th scope="col">Date</th>
-                <th scope="col">Actions</th>
+                <th scope="col" style="text-align: center">File Path</th>
+                <th scope="col" style="text-align: center">Word Detect</th>
+                <th scope="col" style="text-align: center">Level</th>
+                <th scope="col" style="text-align: center">Date</th>
+                <th scope="col" style="text-align: center">Actions</th>
             </tr>
         </thead>
         <tbody>
             @foreach ($scannedFiles as $index => $file)
-                <tr data-file="{{ $file['path'] }}">
-                    <td>{{ $file['path'] }}</td>
-                    <td>{{ $file['word'] }}</td>
-                    <td>{{ $file['modification_time'] }}</td>
+                <tr data-file="{{ $file['path'] }}" style="text-align: center">
+                    <td style="text-align: center">{{ $file['path'] }}</td>
+                    <td style="text-align: center">{{ $file['word'] }}</td>
+                    <td style="text-align: center">
+                        @if (isset($file['level']))
+                            @if ($file['level'] === 'Low')
+                                <div class="low">
+                                    {{-- <i class="fa fa-info-circle shine-low shine1"></i>
+                                    &nbsp; &nbsp; --}}
+                                    <span class="shine1">Low</span>
+                                </div>
+                            @elseif ($file['level'] === 'Medium')
+                                <div class="medium">
+                                    {{-- <i class="fa fa-exclamation-triangle shine2"></i>
+                                    &nbsp; &nbsp; --}}
+                                    <span class="shine2">Medium</span>
+                                </div>
+                            @elseif ($file['level'] === 'High')
+                                <div class="high">
+                                    {{-- <i class="fa-solid fa-skull shine3"></i>
+                                    &nbsp; &nbsp; --}}
+                                    <span class="shine3">High</span>
+                                </div>
+                            @else
+                                <span>Unknown</span>
+                            @endif
+                        @else
+                            <span>No Level Data</span>
+                        @endif
+                    </td>
+                    <td style="text-align: center">{{ $file['modification_time'] }}</td>
                     <td>
                         <button type="button" class="btn btn-primary edit-btn" data-toggle="modal"
                             data-target="#editModal{{ $index }}" data-file="{{ $file['path'] }}">Edit</button>

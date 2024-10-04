@@ -156,7 +156,7 @@ class wordlistController extends Controller
             ],
         ];
     
-        $sheet->getStyle('A1:F1')->applyFromArray($headerStyle);
+        $sheet->getStyle('A1:G1')->applyFromArray($headerStyle);
     
         foreach (range(1, 1) as $row) {
             $sheet->getRowDimension($row)->setRowHeight(20); // set height of the first row
@@ -172,10 +172,10 @@ class wordlistController extends Controller
             ],
         ];
     
-        $sheet->getStyle('A1:F1')->applyFromArray($borderStyle);
+        $sheet->getStyle('A1:G1')->applyFromArray($borderStyle);
     
         // adjust column widths
-        foreach (range('A', 'F') as $column) {
+        foreach (range('A', 'G') as $column) {
             $sheet->getColumnDimension($column)->setWidth(45);
         }
     

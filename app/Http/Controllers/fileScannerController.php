@@ -24,17 +24,133 @@ class fileScannerController extends Controller
         }
     }
 
+    private function getLevel($word)
+    {
+        $highLevelPatterns = [
+            /**
+             * single wordlist
+             */
+            '*GACOR',
+            '*TOGEL',
+            '*MAXWIN',
+
+            /**
+             * combo wordlist
+             * wordlist yang digunakan tanpa menggunakan spasi, untuk memnimalisir false positife 
+             */
+            '*SLOT+GACOR*',
+            '*SLOT+SLOT*',
+            '*MAXWIN+*WIN',
+        ];
+
+        $mediumLevelPatterns = [
+            /**
+             * single wordlist
+             */
+            'MAXWIN*',
+            '*CASINO',
+            '*JACKPOT',
+
+            /**
+             * combo wordlist
+             */
+
+            '*MAXWIN+MAXWIN*',
+            '*WIN+MAXWIN*',
+            '*MAXWIN+*WIN+MAXWIN*',
+            'MAXWIN*+SLOT*',
+            '*MAXWIN+SLOT*',
+            '*WIN+SLOT*',
+            '*MAXWIN+*WIN+SLOT*',
+            '*SLOT+MAXWIN*',
+            '*MAXWIN+MAXWIN*+SLOT*',
+            '*WIN+MAXWIN*+SLOT*',
+            '*SLOT+MAXWIN*+SLOT*',
+            '*MAXWIN+*WIN+MAXWIN*+SLOT*',
+            '*MAXWIN+*SLOT',
+            '*SLOT+*WIN',
+            '*MAXWIN+*SLOT+MAXWIN*',
+            '*SLOT+*WIN+MAXWIN*',
+            '*MAXWIN+*SLOT+SLOT*',
+            '*SLOT+*WIN+SLOT*',
+            '*MAXWIN+*SLOT+*WIN',
+            '*MAXWIN+*SLOT+MAXWIN*+SLOT*',
+            '*SLOT+*WIN+MAXWIN*+SLOT*',
+            '*MAXWIN+*SLOT+*WIN+MAXWIN*',
+            '*MAXWIN+*SLOT+*WIN+SLOT*',
+            '*MAXWIN+*SLOT+*WIN+MAXWIN*+SLOT*',
+        ];
+
+        $lowLevelPatterns = [
+            /**
+             * single wordlist
+             */
+            '*WINBET',
+            'PRAGMATIC*',
+            'JACKPOT*',
+            'TOGEL*',
+            'VIPSLOT*',
+            'WINSLOT*',
+            'RAJAHOKI*',
+
+            /**
+             * combo wordlist
+             */
+            '*BET+SLOT*',
+            '*BET+*WINBET',
+            '*BET+*SLOT',
+            '*BET+*SLOT+SLOT*',
+            '*CASINO+CASINO*',
+            '*TOTO+SLOT*',
+            '*JACKPOT+JACKPOT*',
+            '*TOGEL+TOGEL*',
+            'AGEN*+SLOT*',
+            '*SLOT+AGEN*',
+            '*SLOT+AGEN*+SLOT*',
+            'JACKPOT*+SLOT*',
+            '*JACKPOT+SLOT*',
+            '*JACKPOT+JACKPOT*+SLOT*',
+            '*BET+FREEBET*',
+            '*SLOT+*TOTO',
+            '*SLOT+*TOTO+SLOT*',
+            '*TOTO+TOTO*',
+            '*BET+AGEN*',
+
+        ];
+
+        foreach ($highLevelPatterns as $pattern) {
+            if ($this->matchComplexPattern($word, $pattern)) {
+                return 'High';
+            }
+        }
+
+        foreach ($mediumLevelPatterns as $pattern) {
+            if ($this->matchComplexPattern($word, $pattern)) {
+                return 'Medium';
+            }
+        }
+
+        foreach ($lowLevelPatterns as $pattern) {
+            if ($this->matchComplexPattern($word, $pattern)) {
+                return 'Low';
+            }
+        }
+
+        return 'Unknown';
+    }
+
+
 
     private function scanDirectory($directory, $wordlist, $wordlistType)
     {
         $files = scandir($directory);
         $results = [];
-    
+
         foreach ($files as $file) {
             if ($file != '.' && $file != '..') {
                 $path = $directory . '/' . $file;
                 if (is_dir($path)) {
-                     // jika $path adalah direktori, lakukan rekursi
+                    // jika $path adalah direktori, lakukan rekursi
                     $subResults = $this->scanDirectory($path, $wordlist, $wordlistType);
                     $results = array_merge($results, $subResults);
                 } else {
@@ -43,9 +159,11 @@ class fileScannerController extends Controller
                         // opsi untuk wordlist kompleks (best wordlist slot)
                         if ($wordlistType === 'best_wordlist_slot') {
                             if ($this->matchComplexPattern($content, $complexWord)) {
+                                $level = $this->getLevel($complexWord); // mndapatkan level berdasarkan pola
                                 $results[] = [
                                     'path' => $path,
                                     'word' => $complexWord,
+                                    'level' => $level, 
                                     'modification_time' => date('F d Y H:i:s', filemtime($path))
                                 ];
                                 break;
@@ -53,7 +171,7 @@ class fileScannerController extends Controller
                         } else {
                             // stripos digunakan untuk pencarian case-insensitive
                             if (stripos($content, trim($complexWord)) !== false) {
-                            // jika kata ditemukan dalam file, tambahkan informasi file ke dalam hasil
+                                // jika kata ditemukan dalam file, tambahkan informasi file ke dalam hasil
                                 $results[] = [
                                     'path' => $path,
                                     'word' => $complexWord,
@@ -66,7 +184,7 @@ class fileScannerController extends Controller
                 }
             }
         }
-    
+
         return $results;
     }
 
@@ -148,7 +266,7 @@ class fileScannerController extends Controller
             'scannedFiles' => $scannedFiles ?? null, // menggunakan null coalescing operator untuk menghindari error jika $scannedFiles tidak diinisialisasi
             'wordlistType' => $wordlistType,
         ]);
-    }    
+    }
 
 
     // fungsi untuk mendapatkan isi dari file yang mau diedit
@@ -183,7 +301,7 @@ class fileScannerController extends Controller
         $filePath = $request->input('filePath');
 
         if (file_exists($filePath)) {
-            unlink($filePath); // This will delete the file
+            unlink($filePath);
             return response()->json(['message' => 'File deleted successfully']);
         } else {
             return response()->json(['error' => 'File not found'], 404);
